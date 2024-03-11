@@ -1,0 +1,41 @@
+Выборки пользователей, у которых количество постов больше, чем у пользователя их пригласившего.
+
+SELECT users.name FROM users
+    INNER JOIN users users2 ON users.invited_by_user_id = users2.id
+WHERE users.posts_qty > users2.posts_qty
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+Выборки пользователей, имеющих максимальное количество постов в своей группе.
+
+SELECT users.name, users.posts_qty FROM users
+Where users.posts_qty = (
+    SELECT max(users2.posts_qty)
+    FROM users as users2
+    WHERE users2.group_id = users.group_id)
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+Выборки групп, количество пользователей в которых превышает 10000.
+
+SELECT groups.name FROM groups
+    INNER JOIN users ON users.group_id = groups.id
+GROUP BY groups.id
+HAVING COUNT(users.id) > 10000
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+Выборки пользователей, у которых пригласивший их пользователь из другой группы.
+
+SELECT users.name FROM users
+    INNER JOIN users users2 ON users.invited_by_user_id = users2.id
+WHERE users.group_id <> users2.group_id
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+Выборки групп с максимальным количеством постов у пользователей.
+
+SELECT groups.name, SUM(users.posts_qty) as sum FROM groups
+    INNER JOIN users on groups.id = users.group_id
+GROUP BY groups.id
+ORDER BY sum DESC limit 1
